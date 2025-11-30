@@ -27,7 +27,7 @@ shapely==2.0.3
 pyproj==3.6.1
 fiona==1.9.6
 rtree==1.1.0
-pyogrio==0.6.1
+pyogrio==0.12.1
 
 # -------------------------
 # Utilidades gerais
