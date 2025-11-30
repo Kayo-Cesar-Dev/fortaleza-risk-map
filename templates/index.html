@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação | Análise de Risco Fortaleza</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;500&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--bg); color: #333; line-height: 1.6; }
+        
+        /* Navegação */
+        .nav { background-color: var(--primary); padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav a { color: white; text-decoration: none; font-family: 'Oswald', sans-serif; font-size: 1.1em; margin: 0 20px; padding: 5px 10px; border-radius: 4px; transition: 0.3s; }
+        .nav a:hover { background-color: rgba(255,255,255,0.1); }
+        .nav a.cta { background-color: var(--accent); font-weight: bold; }
+
+        /* Layout */
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        
+        .header { text-align: center; margin-bottom: 60px; }
+        .header h1 { font-family: 'Oswald', sans-serif; font-size: 3em; margin-bottom: 10px; color: var(--primary); }
+        .header p { font-size: 1.2em; color: #666; max-width: 600px; margin: 0 auto; }
+
+        /* Seções de Apresentação */
+        .section { margin-bottom: 80px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
+        .section-title { font-family: 'Oswald', sans-serif; font-size: 2em; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; }
+        .section-title span { background: var(--primary); color: white; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.6em; margin-right: 15px; }
+
+        /* Grid Gráfico + Explicação */
+        .chart-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; align-items: center; }
+        
+        .chart-card { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); text-align: center; }
+        .chart-card img { max-width: 100%; height: auto; border-radius: 5px; }
+        
+        .guide-card { background: #fff; padding: 25px; border-left: 5px solid var(--accent); border-radius: 0 10px 10px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .guide-title { font-family: 'Oswald', sans-serif; color: var(--accent); font-size: 1.3em; margin-bottom: 15px; text-transform: uppercase; }
+        
+        .insight-box { margin-bottom: 20px; }
+        .insight-label { font-weight: bold; display: block; color: #555; font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px; }
+
+        /* Footer */
+        .footer { text-align: center; margin-top: 50px; padding: 40px; background: var(--primary); color: white; }
+        
+        /* Ajuste para o Heatmap (que é quadrado) */
+        .heatmap-img { max-height: 500px; object-fit: contain; }
+
+    </style>
+</head>
+<body>
+
+    <div class="nav">
+        <a href="#inicio">Início</a>
+        <a href="#investigacao">1. Investigação</a>
+        <a href="#validacao">2. Validação</a>
+        <a href="#solucao">3. Solução</a>
+        <a href="/mapa" class="cta">ACESSAR MAPA INTERATIVO ➜</a>
+    </div>
+
+    <div class="container" id="inicio">
+        <div class="header">
+            <h1>Entre o Clima e a Cidade</h1>
+            <p>Análise multivariada de riscos climáticos em Fortaleza: superando a análise de dados isolados para criar inteligência geográfica.</p>
+        </div>
+
+        <div class="section" id="investigacao">
+            <div class="section-title"><span>01</span> A Hipótese Inicial: O Lixo</div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <img src="{{ url_for('static', filename='images/grafico_correlacao_lixo.png') }}" alt="Correlação Lixo">
+                </div>
+                <div class="guide-card">
+                    <div class="guide-title">Guia de Leitura</div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">O que vemos:</span>
+                        <p>Uma nuvem de pontos dispersa. Embora a linha pontilhada suba levemente, muitos pontos estão longe dela.</p>
+                    </div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">Conclusão:</span>
+                        <p>O lixo é um problema, mas <b>não explica tudo</b>. Existem áreas com muito lixo que não alagam tanto, e áreas mais limpas que alagam. Precisávamos investigar mais fundo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title"><span>02</span> A Causa Raiz: Risco Geológico</div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <img src="{{ url_for('static', filename='images/grafico_correlacao_risco_geo.png') }}" alt="Correlação Risco Geo">
+                </div>
+                <div class="guide-card">
+                    <div class="guide-title">Guia de Leitura</div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">O que vemos:</span>
+                        <p>Uma tendência muito mais clara e ascendente. Quando a % de área de risco geológico aumenta (eixo X), os alagamentos disparam.</p>
+                    </div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">Conclusão:</span>
+                        <p>A topografia e o solo são determinantes. Baseado nisso, atribuímos um <b>peso maior (30%)</b> para esta variável no nosso modelo matemático.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="validacao">
+            <div class="section-title"><span>03</span> A Prova Estatística (Heatmap)</div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <img src="{{ url_for('static', filename='images/grafico_heatmap_correlacao.png') }}" class="heatmap-img" alt="Heatmap de Correlação">
+                </div>
+                <div class="guide-card">
+                    <div class="guide-title">Matriz de Correlação</div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">Como ler este gráfico:</span>
+                        <p>Cores quentes (vermelho/laranja) indicam forte relação. Cores frias (azul) indicam relação fraca ou inversa.</p>
+                    </div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">A Descoberta:</span>
+                        <p>Observe como a variável <b>Alagamento</b> tem uma cor mais quente quando cruzada com <b>Risco Geo</b> do que com outras variáveis. Isso valida matematicamente nossa decisão de criar um Índice Ponderado.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="solucao">
+            <div class="section-title"><span>04</span> O Resultado: Clusters de Risco</div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <img src="{{ url_for('static', filename='images/grafico_resultado_cluster.png') }}" alt="Resultado Final">
+                </div>
+                <div class="guide-card" style="border-left-color: #d73027;">
+                    <div class="guide-title" style="color: #d73027;">O Modelo Funcionou?</div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">A Resposta Visual:</span>
+                        <p>Sim. As barras vermelhas (classificadas como <b>Alto Risco</b> pelo nosso algoritmo) coincidem exatamente com as Regionais que tiveram os maiores picos de alagamento reais.</p>
+                    </div>
+                    
+                    <div class="insight-box">
+                        <span class="insight-label">O Produto "Predict":</span>
+                        <p>Transformamos essa matemática em alertas de texto automáticos no mapa. O sistema agora diz <b>o porquê</b> do risco, não apenas onde ele está.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <h3>Pronto para ver o sistema em ação?</h3>
+            <a href="/mapa" style="background: #e67e22; color: white; padding: 15px 30px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 1.2em; display: inline-block; margin-top: 10px;">
+                ACESSAR MAPA INTERATIVO
+            </a>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>Projeto de Extensão Universitária em Big Data</p>
+        <p style="font-size: 0.8em; opacity: 0.7;">Desenvolvido com Python (Pandas/Geopandas) e Leaflet.js</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Mapa | Análise Multivariada de Risco</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"> 
+
+    <style>
+        html, body { margin: 0; padding: 0; overflow: hidden; font-family: Arial, sans-serif; }
+        #map { width: 100%; height: 100vh; z-index: 1; }
+        path.leaflet-interactive:focus { outline: none; }
+        
+        /* Sidebar */
+        #sidebar { 
+            color: rgb(0, 0, 0); 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            /* --- MUDANÇA: Largura aumentada para acomodar 2 colunas --- */
+            width: 600px; 
+            height: 100%; 
+            background-color: #f9f9f9; 
+            z-index: 2000; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            box-shadow: -4px 0 8px rgba(0,0,0,0.3); 
+            overflow-y: auto; 
+            transform: translateX(100%); 
+            transition: transform 0.3s ease-in-out; 
+            border-radius: 10px 0 0 10px; 
+        }
+        #sidebar.open { transform: translateX(0); }
+        
+        /* Cabeçalho da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .sidebar-header h2 { margin: 0; font-family: 'Oswald', sans-serif; color: #2c3e50; font-size: 28px; }
+        
+        #close-sidebar { float: right; font-size: 28px; font-weight: bold; cursor: pointer; border: none; background: none; color: #666; }
+        #close-sidebar:hover { color: #000; }
+
+        /* Grid de 2 Colunas */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas de tamanho igual */
+            gap: 20px; /* Espaço entre colunas */
+            margin-bottom: 20px;
+        }
+
+        /* Títulos das seções */
+        .column-title {
+            font-size: 0.9em;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        /* Cartões de Dados (Cards) */
+        .data-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 10px rgb(0, 0, 0);
+            border-left: 5px solid #ccc; 
+        }
+        /* Cores das bordas baseadas no risco */
+        .risk-high { border-left-color: #d73027; background-color: #fff5f5; }
+        .risk-med { border-left-color: #fee08b; background-color: #fffdf0; }
+        .risk-low { border-left-color: #4575b4; background-color: #f0f7ff; }
+
+        .card-label { font-size: 0.8em; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-value { font-size: 1.4em; font-weight: bold; color: #333; margin: 5px 0; }
+        .card-sub { font-size: 0.85em; color: #888; }
+
+        /* Barras de Progresso */
+        .progress-bg {
+            background-color: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+
+        /* Container do Gráfico */
+        #chart-container { 
+            width: 100%; 
+            height: 230px; 
+            margin-top: 10px; 
+            background: #fff; 
+            padding: 35px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        /* Box de Predição */
+        #predicao-container { 
+            margin-top: 0; 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            background-color: #fff3cd; 
+            border-radius: 5px;  
+            border-left: 5px solid #ffc107; /* Destaque amarelo */
+        }
+        .risk-high { border-left-color: #d73027; background-color: #fff5f5; }
+        .risk-med { border-left-color: #fee08b; background-color: #fffdf0; }
+        .risk-low { border-left-color: #4575b4; background-color: #f0f7ff; }
+
+        /* Seletor */
+        .map-selector-container { 
+            position: absolute; 
+            top: 10px;          
+            left: 50px;        
+            z-index: 1000; 
+            background-color: rgba(255, 255, 255, 0.9); 
+            padding: 0 5px; 
+            border-radius: 4px; 
+            border: 2px solid rgba(0,0,0,0.2); 
+            box-shadow: none;
+            height: 34px;       
+            display: flex;
+            align-items: center;
+        }
+        
+        
+        .map-selector-container select { 
+            border: none; 
+            background: transparent; 
+            font-family: 'Roboto', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            padding-right: 5px;
+        }
+        .map-selector-container label { display: none; }
+
+        .btn-voltar {
+            position: absolute;
+            top: 10px;
+            right: 210px;       
+            z-index: 1000;
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
+            padding: 7px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.3);
+            transition: background-color 0.2s;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .btn-voltar:hover {
+            background-color: #5f717d;
+            border-color: #fff;
+        }
+        
+        /* Legenda */
+        .legend { position: absolute; bottom: 30px; left: 10px; z-index: 1000; background-color: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; line-height: 1.5; font-size: 0.9em; min-width: 140px; box-shadow: 0 0 5px rgba(0,0,0,0.3); }
+        .legend h4 { margin: 0 0 5px 0; text-align: center; }
+        .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
+        
+        .leaflet-grab .leaflet-interactive:hover { fill-opacity: 0.5; stroke-width: 2; stroke: #fff; }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="btn-voltar">← VOLTAR</a>
+    <div id="map"></div>
+    
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h2 id="sidebar-title">Selecione...</h2>
+            <button id="close-sidebar" title="Fechar">&times;</button>
+        </div>
+
+        <div id="sidebar-content">
+            <p style="text-align: center; color: #777; margin-top: 50px;">
+                Clique em uma Regional no mapa para ver a análise detalhada.
+            </p>
+        </div>
+
+        <div id="chart-container" style="display: none;">
+            <h4 style="margin:0 0 10px; color:#666; text-align:center;">Comparativo Local</h4>
+            <canvas id="chart"></canvas>
+        </div>
+        
+        <p style="font-size: 0.75em; margin-top: 20px; color: #999; text-align: center;">
+            *Lixo: Contagem de demandas (Entulho/Poda).<br>
+            *Alagamento: Ocorrências diretas (2022).<br>
+            *Risco Geo: % da área em zonas de risco.<br>
+            *Drenagem: Densidade (Km/Km²).<br>
+            *Dados baseados em registros oficiais (2022) - Usado apenas para fins de estudo.
+        </p>
+    </div>
+    
+   <div class="map-selector-container">
+        <select id="metric-select">
+            <option value="nenhum" selected>Escolher Camada</option>
+            <option value="cluster_risco">Risco Combinado(Cluster)</option> 
+            <option value="alagamento">Ocorrências de Alagamento</option>
+            <option value="lixo">Demandas de Lixo</option>
+            <option value="idh">IDH (Invertido)</option>
+            <option value="risco_geo">Risco Geológico (%)</option>
+            <option value="km_drenagem">Densidade Drenagem (Invertido)</option>
+            <option value="nenhum">Limpar Visualização</option> </select>
+    </div>
+
+    <script>
+      const map = L.map('map').setView([-3.78, -38.52], 11); 
+      
+      const sidebar = document.getElementById('sidebar');
+      const closeButton = document.getElementById('close-sidebar');
+      const sidebarTitle = document.getElementById('sidebar-title');
+      const sidebarContent = document.getElementById('sidebar-content');
+      const chartContainer = document.getElementById('chart-container');
+      
+      let currentChart = null;
+      let layerRegionais = null; 
+      let legend = null; 
+
+      // --- VARIÁVEIS GLOBAIS PARA OS TOTAIS DA CIDADE ---
+      let TOTAL_LIXO_CIDADE = 0;
+      let TOTAL_ALAGAMENTO_CIDADE = 0;
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+      closeButton.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+      });
+
+      // --- Cores e estilo ---
+      // --- Cores e Estilos ---
+      function getColorAlagamento(d) { return d > 20 ? '#800026' : d > 15 ? '#BD0026' : d > 10 ? '#E31A1C' : d > 5  ? '#FC4E2A' : d > 2  ? '#FD8D3C' : d > 0  ? '#FEB24C' : '#FFEDA0'; }
+      function getColorLixo(d) { return d > 702 ? '#b30000' : d > 100 ? '#e34a33' : d > 55  ? '#fc8d59' : d > 40  ? '#fdbb84' : d > 25  ? '#fdd49e' : d > 0    ? '#fef0d9' : '#ffffff'; }
+      function getColorIdh(d) { return d < 0.2 ? '#08306b' : d < 0.3 ? '#08519c' : d < 0.4 ? '#2171b3' : d < 0.5 ? '#4292c6' : d < 0.6 ? '#6baed6' : d < 0.7 ? '#9ecae1' : '#c6dbef'; }
+      function getColorRiscoGeo(d) { return d > 20 ? '#800026' : d > 15 ? '#BD0026' : d > 10 ? '#E31A1C' : d > 5 ? '#FC4E2A' : d > 0 ? '#FD8D3C' : '#FEB24C'; }   
+      function getColorDrenagem(d) { return d < 0.5 ? '#a63603' : d < 1.0 ? '#e6550d' : d < 1.5 ? '#fd8d3c' : d < 2.0 ? '#fdbe85' : d < 3.0 ? '#feedde' : '#ffffff'; }
+      function getColorCluster(d) { return d === 'Alto'  ? '#d73027' : d === 'Médio' ? '#fee08b' : d === 'Baixo' ? '#4575b4' : '#ffffff'; }
+
+      const colors = {
+          alagamento: getColorAlagamento,
+          lixo: getColorLixo,
+          idh: getColorIdh,
+          risco_geo: getColorRiscoGeo,
+          drenagem: getColorDrenagem,
+          cluster: getColorCluster
+      };
+
+      function getStyle(feature, metric) {
+          let value, color;
+          switch (metric) {
+              case 'alagamento': value = feature.properties.alagamento || 0; color = getColorAlagamento(value); break;
+              case 'lixo': value = feature.properties.lixo || 0; color = getColorLixo(value); break;
+              case 'idh': value = feature.properties.idh || 0; color = getColorIdh(value); break;
+              case 'risco_geo': value = feature.properties.risco_geo || 0; color = getColorRiscoGeo(value); break;
+              case 'km_drenagem': value = feature.properties.km_drenagem || 0; color = getColorDrenagem(value); break;
+              case 'cluster_risco': value = feature.properties.cluster_risco || 'N/A'; color = getColorCluster(value); break;
+              default: color = '#FFD700'; break;
+          }
+          return { color: "#444", weight: 1, fillOpacity: (metric === 'nenhum') ? 0.2 : 0.7, fillColor: color };
+      }
+
+      function updateLegend(metric) {
+          if (!legend) { 
+              legend = L.control({ position: 'bottomleft' });
+              legend.onAdd = function (map) { return L.DomUtil.create('div', 'legend'); };
+              legend.addTo(map);
+          }
+          const div = legend.getContainer();
+          div.innerHTML = ""; 
+          let grades = [], title = "", getColor;
+
+          switch (metric) {
+              case 'cluster_risco':
+                  div.innerHTML = `<h4>Risco Combinado</h4><i style="background:#d73027"></i> Risco Alto<br><i style="background:#fee08b"></i> Risco Médio<br><i style="background:#4575b4"></i> Risco Baixo<br>`;
+                  return; 
+              case 'alagamento': grades = [0, 2, 5, 10, 15, 20]; title = "Ocorr. Alagamento"; getColor = getColorAlagamento; break;
+              case 'lixo': grades = [0, 25, 40, 55, 100, 702]; title = "Demandas de Lixo"; getColor = getColorLixo; break;
+              case 'idh': grades = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2]; title = "IDH (Pior > Melhor)"; getColor = getColorIdh; break;
+              case 'risco_geo': grades = [0, 5, 10, 15, 20]; title = "% Risco Geográfico"; getColor = getColorRiscoGeo; break;
+              case 'km_drenagem': grades = [3.0, 2.0, 1.5, 1.0, 0.5]; title = "Densidade Drenagem"; getColor = getColorDrenagem; break;
+              default: div.innerHTML = "<h4>Selecione uma variável</h4>"; return;
+          }
+          div.innerHTML = `<h4>${title}</h4>`;
+          for (let i = 0; i < grades.length; i++) {
+              div.innerHTML += '<i style="background:' + getColor(grades[i] + (metric === 'idh' ? -0.01 : 0.01)) + '"></i> ' + grades[i] + (grades[i+1] ? '&ndash;' + grades[i+1] + '<br>' : '+');
+          }
+      }
+
+      // ==========================================================
+      // CARREGAMENTO E INTEGRAÇÃO DE DADOS
+      // ==========================================================
+
+      Promise.all([
+        fetch("/static/data/result.json").then(r => r.json()), 
+        fetch("/static/data/Secretarias_Executivas_Regionais.geojson").then(r => r.json()),
+        fetch("/static/data/Rios.geojson").then(r => r.json()),
+        fetch("/static/data/Canais.geojson").then(r => r.json()),
+        fetch("/static/data/Valas_e_Drenos.geojson").then(r => r.json()),
+        fetch("/static/data/Alagados.geojson").then(r => r.json()), 
+        fetch("/static/data/risco_geologico.json").then(r => r.json()), 
+        fetch("/static/data/inundacao_raster_corrected.geojson").then(r => r.json()),
+        fetch("/static/data/Bairros_de_Fortaleza.geojson").then(r => r.json())
+      ]).then(([dados, regionais, rios, canais, valas, alagadosHistorico, riscoGeo, inundacaoRaster, bairros]) => {
+
+        // --- MUDANÇA: CÁLCULO DOS TOTAIS DA CIDADE ---
+        // Soma tudo agora para usar como 100% nas barras de progresso
+        TOTAL_LIXO_CIDADE = dados.reduce((acc, item) => acc + (item.lixo || 0), 0);
+        TOTAL_ALAGAMENTO_CIDADE = dados.reduce((acc, item) => acc + (item.alagamento || 0), 0);
+        
+        console.log("Totais Calculados:", TOTAL_LIXO_CIDADE, TOTAL_ALAGAMENTO_CIDADE);
+
+        const dadosPorRegional = new Map(dados.map(d => [d.regiao, d]));
+        regionais.features.forEach(feature => {
+            const d = dadosPorRegional.get(feature.properties.regiao_adm);
+            if (d) {
+                feature.properties.lixo = d.lixo;
+                feature.properties.alagamento = d.alagamento;
+                feature.properties.idh = d.idh;
+                feature.properties.risco_geo = d.risco_geo;
+                feature.properties.km_drenagem = d.densidade_drenagem;
+                feature.properties.cluster_risco = d.cluster;
+                feature.properties.predict = d.predict;
+            }
+        });
+
+        // Função Montar Popup (Detalhes do Risco)
+        function montarPopup(feature, titulo) {
+            const p = feature.properties;
+            const grau = p.classe || p.grau_risco || p.GRAU || p.risco || 'Não classificado';
+            const tipo = p.tipolo_g1 || p.processo || p.TIPO || 'Geral';
+            const desc = p.descricao || p.obs || 'Sem descrição disponível.';
+            const local = p.local || p.bairro || '';
+
+            return `
+                <div style="font-family: Arial, sans-serif; min-width: 200px;">
+                    <h3 style="margin: 0 0 8px 0; color: #333; border-bottom: 2px solid #ddd; padding-bottom: 5px;">${titulo}</h3>
+                    <p style="margin: 5px 0;"><b>Grau:</b> <span style="color: red; font-weight:bold;">${grau}</span></p>
+                    <p style="margin: 5px 0;"><b>Tipo:</b> ${tipo}</p>
+                    ${local ? `<p style="margin: 5px 0;"><b>Local:</b> ${local}</p>` : ''}
+                    <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-top: 8px; font-size: 0.85em; border: 1px solid #eee; color: #555;">
+                        ${desc}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Diferencia por cor se risco de inundação é alto, médio ou baixo
+        function getCorInundacao(feature) {
+            const p = feature.properties;
+            const valor = p.classe || p.risco || p.nivel; 
+
+        // 1. Alto Risco (Cor mais escura)
+         if (valor === 'Alto' || valor === 'Alta') {
+            return '#08306b'; 
+        }
+    
+        // 2. Médio Risco (Cor intermediária)
+        if (valor === 'Médio' || valor === 'Média' || valor === 'Medio') {
+            return '#016ca5';
+        }
+
+        // 3. Baixo Risco (Cor mais clara)
+        if (valor === 'Baixo' || valor === 'Baixa') {
+            return '#beedf4';
+        }
+    }
+
+        // --- NOVA FUNÇÃO DRAWSIDEBAR COM GRID E PROGRESS BARS ---
+        function drawSidebar(nome, lixo, alagamento, idh, risco_geo, km_drenagem, cluster_risco, predict) { 
+            sidebarTitle.innerText = nome;
+            chartContainer.style.display = 'block';
+            
+            // Cálculos de Porcentagem (Evitando divisão por zero)
+            const percLixo = TOTAL_LIXO_CIDADE > 0 ? ((lixo / TOTAL_LIXO_CIDADE) * 100).toFixed(1) : 0;
+            const percAlagamento = TOTAL_ALAGAMENTO_CIDADE > 0 ? ((alagamento / TOTAL_ALAGAMENTO_CIDADE) * 100).toFixed(1) : 0;
+
+            // Definir classe de cor do card de risco
+            let riskClass = 'risk-low';
+            if(cluster_risco === 'Alto') riskClass = 'risk-high';
+            if(cluster_risco === 'Médio') riskClass = 'risk-med';
+            const corTextoRisco = colors.cluster(cluster_risco);
+
+            // HTML da Sidebar (Estrutura de 2 Colunas)
+            let html = `
+                ${predict ? `
+                <div id="predicao-container">
+                    <strong style="color: #856404;">Previsão do Modelo:</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.95em; color:#333;">${predict}</p>
+                </div>` : ''}
+
+                <div class="info-grid">
+                    
+                    <div>
+                        <h3 class="column-title">Indicadores Locais</h3>
+                        
+                        <div class="data-card ${riskClass}">
+                            <div class="card-label">Cluster de Risco</div>
+                            <div class="card-value" style="color: ${corTextoRisco}"> ${cluster_risco} </div>
+                        </div>
+
+                        <div class="data-card" style="border-left-color: ${colors.drenagem(km_drenagem)}">
+                            <div class="card-label">Infraestrutura</div>
+                            <div class="card-value">${km_drenagem}</div>
+                            <div class="card-sub">Km de Drenagem/Km²</div>
+                        </div>
+
+                        <div class="data-card" style="border-left-color: ${colors.idh(idh)}">
+                            <div class="card-label">Vulnerabilidade</div>
+                            <div class="card-value">${idh}</div>
+                            <div class="card-sub">IDH Médio</div>
+                        </div>
+                        
+                        <div class="data-card" style="border-left-color: ${colors.risco_geo(risco_geo)}">
+                            <div class="card-label">Risco Geo.</div>
+                            <div class="card-value">${risco_geo}%</div>
+                            <div class="card-sub">da área total</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="column-title">Contexto da Cidade</h3>
+                        
+                        <div class="data-card" style="border-left-color: ${colors.lixo(lixo)}">
+                            <div class="card-label">Lixo (Demandas)</div>
+                            <div class="card-value">${lixo}</div>
+                            <div class="card-sub">Total da Cidade: ${TOTAL_LIXO_CIDADE.toLocaleString()}</div>
+                            
+                            <div style="margin-top:10px; font-size:0.8em; color:#555;">Impacto: <b>${percLixo}%</b></div>
+                            <div class="progress-bg">
+                                <div class="progress-fill" style="width:${percLixo}%; background-color:#e67e22;"></div>
+                            </div>
+                        </div>
+
+                        <div class="data-card" style="border-left-color: ${colors.alagamento(alagamento)}">
+                            <div class="card-label">Alagamentos (2022)</div>
+                            <div class="card-value">${alagamento}</div>
+                            <div class="card-sub">Total da Cidade: ${TOTAL_ALAGAMENTO_CIDADE.toLocaleString()}</div>
+                            
+                            <div style="margin-top:10px; font-size:0.8em; color:#555;">Impacto: <b>${percAlagamento}%</b></div>
+                            <div class="progress-bg">
+                                <div class="progress-fill" style="width:${percAlagamento}%; background-color:#3498db;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            sidebarContent.innerHTML = html;
+            
+            chartContainer.style.display = 'block';
+            sidebarTitle.innerText = nome;
+
+            // Atualizar Gráfico Doughnut
+            if (currentChart) { currentChart.destroy(); }
+            const ctx = document.getElementById("chart").getContext("2d");
+            currentChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Lixo (Local)", "Alagamento (Local)"],
+                    datasets: [{
+                        data: [lixo, alagamento],
+                        backgroundColor: ['#e67e22', '#3498db'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+            
+            sidebar.classList.add('open');
+        }
+
+        // 4. Camadas de Detalhe (Overlays)
+        const overlayMaps = {
+            "Rios": L.geoJSON(rios, { style: { color: "#0066cc", weight: 2 } }),
+            "Canais": L.geoJSON(canais, { style: { color: "#000000", weight: 2 } }),
+            "Valas e Drenos": L.geoJSON(valas, { style: { color: "#06402b", weight: 2, dashArray: '5, 5' } }),
+
+            "Limites de Bairros": L.geoJSON(bairros, {
+                style: { color: '#666', weight: 1, fillOpacity: 0, dashArray: '3, 3', opacity: 0.7 },
+                
+                onEachFeature: (f, l) => {
+                    const nome = f.properties.NOME || f.properties.Nome || f.properties.BAIRRO || "Bairro";
+                    l.bindTooltip(nome, { direction: 'center', className: 'leaflet-tooltip' });
+
+                    l.on({
+                        mouseover: (e) => {
+                            const layer = e.target;
+                            layer.setStyle({
+                                weight: 2,             
+                                color: '#FF1493',      
+                                fillColor: '#FF69B4',  
+                                fillOpacity: 0.4,     
+                                dashArray: ''         
+                            });
+                            layer.bringToFront();      // Traz o bairro para frente para destacar
+                        },
+                        mouseout: (e) => {
+                            const layer = e.target;
+                            // Volta para o estilo "invisível" original
+                            layer.setStyle({
+                                weight: 1,
+                                color: '#666',
+                                fillOpacity: 0,
+                                dashArray: '3, 3'
+                            });
+                        },
+                        click: (e) => {
+                            
+                        }
+                    });
+                }
+            }),
+            
+            "Pontos Históricos (2022)": L.geoJSON(alagadosHistorico, { 
+                pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 6, color: '#ff0000', fillColor: '#ff0000', fillOpacity: 0.6 }),
+                onEachFeature: (f, l) => l.bindPopup("<b>Ponto Histórico</b><br>Registro de alagamento em 2022.")
+            }),
+            
+            "Áreas de Risco Geológico": L.geoJSON(riscoGeo, { 
+                style: { color: "#8B4513", weight: 1, fillColor: "#8B4513", fillOpacity: 0.6 },
+                onEachFeature: function(feature, layer) {
+                    layer.bindPopup(montarPopup(feature, "Risco Geológico"));
+                }
+            }),
+
+            "Mancha de Inundação": L.geoJSON(inundacaoRaster, { 
+                style: function(feature) {
+                    return {
+                        color: getCorInundacao(feature),
+                        weight: 0,
+                        fillColor: getCorInundacao(feature),
+                        fillOpacity: 0.7
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    layer.bindPopup(montarPopup(feature, "Risco de Inundação"));
+                }
+            })
+        };
+
+        // 5. Camada Principal (Regionais)
+        layerRegionais = L.geoJSON(regionais, {
+          style: getStyle(null, 'nenhum'), 
+          onEachFeature: function(feature, layer) {
+            const nomeSER = feature.properties.regiao_adm; 
+            layer.bindTooltip(nomeSER, { direction: 'center', className: 'leaflet-tooltip-own' });
+
+            layer.on("click", (e) => {
+                L.DomEvent.stopPropagation(e); 
+                const r = feature.properties;
+                drawSidebar(nomeSER, r.lixo, r.alagamento, r.idh, r.risco_geo, r.km_drenagem, r.cluster_risco, r.predict);
+            });
+          }
+        }).addTo(map);
+
+        layerRegionais.bringToBack();
+
+        L.control.layers(null, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
+        map.fitBounds(layerRegionais.getBounds());
+
+        const metricSelect = document.getElementById('metric-select');
+        metricSelect.addEventListener('change', function() {
+            const selectedMetric = this.value;
+            layerRegionais.eachLayer(layer => {
+                layer.setStyle(getStyle(layer.feature, selectedMetric));
+            });
+            updateLegend(selectedMetric);
+        });
+        updateLegend('nenhum');
+
+      }).catch(error => {
+          console.error("Erro ao carregar dados:", error);
+          alert("Erro ao carregar os dados. Verifique o console.");
+      });
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+[
+  {
+    "regiao":"SER 11",
+    "lixo":94,
+    "alagamento":24,
+    "idh":0.31,
+    "risco_geo":2.91,
+    "densidade_drenagem":1.13,
+    "cluster":"Alto",
+    "predict":"ALERTA OPERACIONAL: A região concentra 13.4% de todo o lixo da cidade. Obstrução de drenagem é o fator crítico aqui."
+  },
+  {
+    "regiao":"SER 8",
+    "lixo":72,
+    "alagamento":11,
+    "idh":0.259,
+    "risco_geo":1.11,
+    "densidade_drenagem":0.69,
+    "cluster":"Médio",
+    "predict":"ATENÇÃO: Infraestrutura no limite. Requer limpeza preventiva de canais."
+  },
+  {
+    "regiao":"SER 10",
+    "lixo":98,
+    "alagamento":6,
+    "idh":0.258,
+    "risco_geo":2.96,
+    "densidade_drenagem":0.93,
+    "cluster":"Alto",
+    "predict":"ALERTA OPERACIONAL: A região concentra 14.0% de todo o lixo da cidade. Obstrução de drenagem é o fator crítico aqui."
+  },
+  {
+    "regiao":"SER 9",
+    "lixo":30,
+    "alagamento":16,
+    "idh":0.206,
+    "risco_geo":0.78,
+    "densidade_drenagem":1.11,
+    "cluster":"Médio",
+    "predict":"ATENÇÃO: Infraestrutura no limite. Requer limpeza preventiva de canais."
+  },
+  {
+    "regiao":"SER 6",
+    "lixo":26,
+    "alagamento":14,
+    "idh":0.357,
+    "risco_geo":0.46,
+    "densidade_drenagem":0.24,
+    "cluster":"Baixo",
+    "predict":"MONITORAMENTO: Risco controlado, mas verificar pontos isolados de alagamento histórico."
+  },
+  {
+    "regiao":"SER 7",
+    "lixo":67,
+    "alagamento":14,
+    "idh":0.444,
+    "risco_geo":0.39,
+    "densidade_drenagem":0.09,
+    "cluster":"Médio",
+    "predict":"ATENÇÃO: Infraestrutura no limite. Requer limpeza preventiva de canais."
+  },
+  {
+    "regiao":"SER 4",
+    "lixo":85,
+    "alagamento":12,
+    "idh":0.492,
+    "risco_geo":0.0,
+    "densidade_drenagem":1.76,
+    "cluster":"Baixo",
+    "predict":"MONITORAMENTO: Risco controlado, mas verificar pontos isolados de alagamento histórico."
+  },
+  {
+    "regiao":"SER 5",
+    "lixo":105,
+    "alagamento":6,
+    "idh":0.193,
+    "risco_geo":3.39,
+    "densidade_drenagem":0.41,
+    "cluster":"Alto",
+    "predict":"ALERTA OPERACIONAL: A região concentra 15.0% de todo o lixo da cidade. Obstrução de drenagem é o fator crítico aqui."
+  },
+  {
+    "regiao":"SER 2",
+    "lixo":49,
+    "alagamento":13,
+    "idh":0.694,
+    "risco_geo":1.37,
+    "densidade_drenagem":0.31,
+    "cluster":"Baixo",
+    "predict":"MONITORAMENTO: Risco controlado, mas verificar pontos isolados de alagamento histórico."
+  },
+  {
+    "regiao":"SER 3",
+    "lixo":29,
+    "alagamento":18,
+    "idh":0.47,
+    "risco_geo":2.42,
+    "densidade_drenagem":0.64,
+    "cluster":"Médio",
+    "predict":"ATENÇÃO: Infraestrutura no limite. Requer limpeza preventiva de canais."
+  },
+  {
+    "regiao":"SER 1",
+    "lixo":42,
+    "alagamento":4,
+    "idh":0.299,
+    "risco_geo":5.82,
+    "densidade_drenagem":0.28,
+    "cluster":"Alto",
+    "predict":"ALERTA OPERACIONAL: A região concentra 6.0% de todo o lixo da cidade. Obstrução de drenagem é o fator crítico aqui."
+  },
+  {
+    "regiao":"SER 12",
+    "lixo":5,
+    "alagamento":1,
+    "idh":0.638,
+    "risco_geo":0.0,
+    "densidade_drenagem":0.37,
+    "cluster":"Baixo",
+    "predict":"MONITORAMENTO: Risco controlado, mas verificar pontos isolados de alagamento histórico."
+  }
+]
