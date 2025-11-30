@@ -2,7 +2,10 @@
 # Flask + Server
 # -------------------------
 Flask==3.1.2
-gunicorn==21.2.0   # versão compatível com Python 3.12
+gunicorn==21.2.0
+
+# Corrigido para compatibilidade com Flask
+itsdangerous>=2.2.0
 
 # -------------------------
 # Data Science
@@ -20,14 +23,13 @@ seaborn==0.13.2
 
 # -------------------------
 # Geo / Processamento Espacial
-# (todas compatíveis com Python 3.12)
 # -------------------------
 geopandas==0.14.3
 shapely==2.0.3
 pyproj==3.6.1
 fiona==1.9.6
 rtree==1.1.0
-pyogrio==0.12.1
+pyogrio==0.12.1   # (última compatível com Python 3.12)
 
 # -------------------------
 # Utilidades gerais
@@ -40,13 +42,12 @@ pytz==2024.1
 # Mapas e serviços externos
 # -------------------------
 folium==0.16.0
-xyzservices==2023.10.1   # última compatível
+xyzservices==2023.10.1
 
 # -------------------------
 # Flask Internal Dependencies
 # -------------------------
 Werkzeug==3.0.1
-itsdangerous==2.1.2
 Jinja2==3.1.4
 click==8.1.7
 MarkupSafe==2.1.5
