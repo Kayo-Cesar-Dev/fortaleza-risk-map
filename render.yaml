@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: fortaleza-risk-map
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
