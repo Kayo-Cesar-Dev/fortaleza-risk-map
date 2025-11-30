@@ -5,13 +5,27 @@
 
 ---
 
+## 📥 Download dos Dados Utilizados
+
+Os dados brutos necessários para executar o projeto (CSV, XLSX e GeoJSON originais) podem ser baixados diretamente no Google Drive:
+
+👉 **[https://drive.google.com/drive/folders/17K1tM-U_Yh8x6tE9jYNuwslyPZ6L65G0?usp=sharing](https://drive.google.com/drive/folders/17K1tM-U_Yh8x6tE9jYNuwslyPZ6L65G0?usp=sharing)**
+
+Após baixar, coloque todos os arquivos na seguinte estrutura:
+
+```
+static/
+```
+
+Assim, o ETL conseguirá localizar corretamente os dados para gerar os indicadores, gráficos e o arquivo `result.json` usado no mapa interativo.
+
+---
+
 ## Sobre o Projeto
 
 Originalmente concebido para analisar a relação entre o **descarte irregular de lixo** e os alagamentos em Fortaleza, este projeto evoluiu para uma **Análise Multivariada de Riscos**. Durante a investigação de dados (Big Data), identificou-se que o lixo, embora seja um agravante crítico, não atua isoladamente.
 
 O sistema processa dados heterogêneos para gerar um **Índice Ponderado de Risco**, classificando as Secretarias Regionais em níveis de vulnerabilidade.
-
----
 
 ---
 

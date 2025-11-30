@@ -1,4 +1,69 @@
-.venv/
+# ================================
+# PYTHON / FLASK
+# ================================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Django / Flask session files
+instance/
+*.log
+
+# Cache
+.cache/
+*.pid
+*.swp
+*.swo
+
+# ================================
+# IDE / SISTEMA OPERACIONAL
+# ================================
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
+
+# ================================
+# DADOS DO PROJETO (LOCAL)
+# ================================
+# CSVs / XLSX usados no ETL
+demandas-marco-abril-2022.csv
+ocorrencias_por_regional.csv
+indicededesenvolvimentohumano.xlsx
+
+# ================================
+# SAÍDA DO ETL (GRÁFICOS + GEOJSON)
+# ================================
+static/images/*
+static/data/*
+
+# mas manter as pastas
+!static/
+!static/images/
+!static/data/
+
+# ================================
+# LIBS / BUILD / COMPILAÇÃO
+# ================================
+*.egg-info/
+*.egg
+build/
+dist/
+*.spec
+
+# ================================
+# NOTEBOOKS
+# ================================
+.ipynb_checkpoints/
+
+# ================================
+# PYTHON VERSÃO
+# ================================
+.python-version
